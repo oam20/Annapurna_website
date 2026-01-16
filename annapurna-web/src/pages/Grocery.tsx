@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Search, Star, Filter, ChevronDown, Check, X } from 'lucide-react';
+import { ShoppingBag, Search, Star, Filter, Check, X } from 'lucide-react';
 import { groceryItems, groceryCategories } from '../data/grocery';
 import { useCart } from '../context/CartContext';
 
@@ -22,6 +22,7 @@ const Grocery = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [priceRange, setPriceRange] = useState(50);
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const { addToCart } = useCart(); // Intentionally kept for future use even if lint warns
 
     const filteredItems = groceryItems.filter(item => {
@@ -137,16 +138,16 @@ const Grocery = () => {
                                 />
                             </div>
 
-                            {/* Sort */}
-                            <div className="flex items-center gap-3">
-                                <span className="text-sm font-medium hidden md:block" style={{ color: COLORS.mutedText }}>Sort by:</span>
-                                <div className="relative group">
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-white rounded-full text-sm font-bold border transition-colors hover:border-[#4C8C6A]"
-                                        style={{ color: COLORS.primaryText, borderColor: COLORS.border }}>
-                                        Recommended <ChevronDown className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
+                            {/* Mobile Filter Toggle */}
+                            <button
+                                onClick={() => setIsMobileFilterOpen(true)}
+                                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white rounded-full text-sm font-bold border transition-colors hover:border-[#4C8C6A]"
+                                style={{ color: COLORS.primaryText, borderColor: COLORS.border }}
+                            >
+                                <Filter className="w-4 h-4" /> Filters
+                            </button>
+
+
                         </div>
 
                         {/* Active Filters (Mobile/Desktop) */}
@@ -260,6 +261,114 @@ const Grocery = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Filter Drawer Overlay */}
+            <AnimatePresence>
+                {isMobileFilterOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.5 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsMobileFilterOpen(false)}
+                            className="fixed inset-0 bg-black z-40 lg:hidden"
+                        />
+
+                        {/* Drawer */}
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="fixed inset-y-0 right-0 w-80 bg-white z-50 p-6 shadow-2xl overflow-y-auto lg:hidden"
+                        >
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="font-bold text-xl flex items-center gap-2" style={{ color: COLORS.primaryText }}>
+                                    Filters
+                                </h3>
+                                <button onClick={() => setIsMobileFilterOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                                    <X className="w-6 h-6" style={{ color: COLORS.secondaryText }} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-8">
+                                {/* Categories */}
+                                <div>
+                                    <h4 className="font-bold text-sm mb-4 uppercase tracking-wider" style={{ color: COLORS.secondaryText }}>Categories</h4>
+                                    <div className="space-y-3">
+                                        {groceryCategories.map(category => (
+                                            <label key={category} className="flex items-center gap-3 cursor-pointer group">
+                                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedCategory === category ? 'bg-primary-green border-primary-green' : 'bg-white'}`}
+                                                    style={{ borderColor: selectedCategory === category ? COLORS.primaryGreen : COLORS.border, backgroundColor: selectedCategory === category ? COLORS.primaryGreen : 'transparent' }}>
+                                                    {selectedCategory === category && <Check className="w-3 h-3 text-white" />}
+                                                </div>
+                                                <input
+                                                    type="radio"
+                                                    name="mobile-category"
+                                                    className="hidden"
+                                                    checked={selectedCategory === category}
+                                                    onChange={() => setSelectedCategory(category)}
+                                                />
+                                                <span className={`text-sm transition-colors ${selectedCategory === category ? 'font-bold' : 'font-medium'}`}
+                                                    style={{ color: selectedCategory === category ? COLORS.primaryGreen : COLORS.secondaryText }}>
+                                                    {category}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Price Range */}
+                                <div>
+                                    <h4 className="font-bold text-sm mb-4 uppercase tracking-wider" style={{ color: COLORS.secondaryText }}>Price Range</h4>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={priceRange}
+                                        onChange={(e) => setPriceRange(Number(e.target.value))}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#4C8C6A]"
+                                    />
+                                    <div className="flex justify-between text-sm mt-2 font-medium" style={{ color: COLORS.secondaryText }}>
+                                        <span>$0</span>
+                                        <span>${priceRange}</span>
+                                    </div>
+                                </div>
+
+                                {/* Star Rating */}
+                                <div>
+                                    <h4 className="font-bold text-sm mb-4 uppercase tracking-wider" style={{ color: COLORS.secondaryText }}>Rating</h4>
+                                    <div className="space-y-2">
+                                        {[5, 4, 3, 2].map(stars => (
+                                            <div key={stars} className="flex items-center gap-2 cursor-pointer opacity-80 hover:opacity-100">
+                                                <div className="flex">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star key={i} className={`w-4 h-4 ${i < stars ? 'fill-current' : 'text-gray-200'}`}
+                                                            style={{ color: i < stars ? COLORS.star : undefined }}
+                                                            strokeWidth={0} />
+                                                    ))}
+                                                </div>
+                                                <span className="text-xs font-medium pt-0.5" style={{ color: COLORS.secondaryText }}>& Up</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 pt-8 border-t" style={{ borderColor: COLORS.border }}>
+                                <button
+                                    onClick={() => setIsMobileFilterOpen(false)}
+                                    className="w-full py-3 rounded-full font-bold text-white shadow-lg transition-transform active:scale-95"
+                                    style={{ backgroundColor: COLORS.primaryGreen }}
+                                >
+                                    Show Results
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

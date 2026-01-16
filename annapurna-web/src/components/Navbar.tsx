@@ -80,7 +80,18 @@ const Navbar = () => {
                         </div>
 
                         {/* Mobile Menu Button */}
-                        <div className="lg:hidden flex items-center">
+                        <div className="lg:hidden flex items-center gap-2">
+                            <button
+                                onClick={toggleCart}
+                                className="text-brand-brown hover:text-brand-primary p-2 relative"
+                            >
+                                <ShoppingCart className="h-6 w-6" />
+                                {cartCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-in fade-in zoom-in">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </button>
                             <button className="p-2 text-brand-brown" onClick={() => setIsOpen(!isOpen)}>
                                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                             </button>

@@ -121,7 +121,7 @@ const Menu = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
                             transition={{ duration: 0.3 }}
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8"
+                            className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8"
                         >
                             {filteredItems.map((item) => (
                                 <div
@@ -152,11 +152,11 @@ const Menu = () => {
                                         {item.description}
                                     </p>
 
-                                    <div className="mt-auto w-full flex items-center justify-between pt-4 border-t border-brand-divider/50">
+                                    <div className="mt-auto w-full flex flex-col gap-2 md:flex-row items-center md:justify-between pt-4 border-t border-brand-divider/50">
                                         <span className="text-lg font-bold text-brand-primary">{item.price}</span>
                                         <button
                                             onClick={() => addToCart(item)}
-                                            className="px-5 py-2 rounded-full bg-brand-primary text-white text-sm font-bold hover:bg-brand-secondary transition-all duration-300 shadow-md hover:shadow-lg"
+                                            className="px-5 py-2 rounded-full bg-brand-primary text-white text-sm font-bold hover:bg-brand-secondary transition-all duration-300 shadow-md hover:shadow-lg w-full md:w-auto"
                                         >
                                             Add to Order
                                         </button>
